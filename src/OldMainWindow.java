@@ -303,7 +303,7 @@ public class OldMainWindow {
 																	// of the
 																	// light
 		GL11.glEnable(GL11.GL_LIGHT3); // switch light #0 on
-		 GL11.glLight(GL11.GL_LIGHT3, GL11.GL_DIFFUSE, Utils.ConvertForGL(grey));
+		GL11.glLight(GL11.GL_LIGHT3, GL11.GL_DIFFUSE, Utils.ConvertForGL(grey));
 
 		GL11.glEnable(GL11.GL_LIGHTING); // switch lighting on
 		GL11.glEnable(GL11.GL_DEPTH_TEST); // make sure depth buffer is switched
