@@ -1,6 +1,7 @@
 import GraphicsObjects.Utils;
 import objects3D.Human;
 import objects3D.Sky;
+import objects3D.StandMan;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.Sys;
@@ -9,7 +10,6 @@ import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.glu.GLU;
-import org.newdawn.slick.Color;
 import org.newdawn.slick.opengl.Texture;
 import org.newdawn.slick.opengl.TextureLoader;
 import org.newdawn.slick.util.ResourceLoader;
@@ -37,6 +37,8 @@ public class MainWindow{
     private float offset_x = 0;
     private float offset_z = 0;
     private float offset_y = 0;
+    //Flag Var
+    private boolean WASD = false;
 
     //colours
     private static float grey[] = { 0.5f, 0.5f, 0.5f, 1.0f };
@@ -76,14 +78,19 @@ public class MainWindow{
     }
 
     private void update(int delta){
+        WASD = false;
 
         if (Keyboard.isKeyDown(Keyboard.KEY_A)){
             offset_x +=0.2;
+            WASD = true;
         }
 
         if (Keyboard.isKeyDown(Keyboard.KEY_D)){
             offset_x -=0.2;
+            WASD = true;
         }
+
+
 
 
         updateFPS();
@@ -204,9 +211,9 @@ public class MainWindow{
 
         GL11.glLoadIdentity();
         GLU.gluPerspective(60f, 1.3f, 0.1f, 10000);
-        GLU.gluLookAt(0, 10, -15, 0, 0, 0, 0, 1, 0);
+        GLU.gluLookAt(0, 3.5f, -10, 0, 3, 0, 0, 1, 0);
         GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
-        GL11.glClearColor(0, 0, 0, 0);
+        GL11.glClearColor(1, 1, 1, 0);
 
         myDelta = getTime() - StartTime;
         float delta = ((float) myDelta) / 10000;
@@ -215,13 +222,21 @@ public class MainWindow{
         float posn_x = (float) Math.cos(theta);
         float posn_y = (float) Math.sin(theta);
 
-
-        GL11.glPushMatrix();
-        GL11.glTranslatef(0+offset_x,-0.0f,0.0f);
-        Human human = new Human(head, clo);
-        human.DrawHuman(delta*10);
-        GL11.glPopMatrix();
-
+        if(!WASD) {
+            GL11.glPushMatrix();
+            GL11.glTranslatef(offset_x, -0.0f, 0.0f);
+            GL11.glRotatef(0, 0, 1f, 0);
+            StandMan human = new StandMan(head, clo);
+            human.DrawHuman();
+            GL11.glPopMatrix();
+        } else {
+            GL11.glPushMatrix();
+            GL11.glTranslatef(offset_x, -0.0f, 0.0f);
+            GL11.glRotatef(0, 0, 1f, 0);
+            Human human = new Human(head, clo);
+            human.DrawHuman(delta*30);
+            GL11.glPopMatrix();
+        }
 
     }
 
