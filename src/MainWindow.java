@@ -56,6 +56,10 @@ public class MainWindow{
     private static final float eye_r = 10;
     //Flag Var
     private boolean WASD = false;
+    private boolean JUMP = false;
+    //Jump height
+    private float jump_height = 0;
+    private float jump_flag = 0;
 
     //colours
     private static float grey[] = { 0.5f, 0.5f, 0.5f, 1.0f };
@@ -101,7 +105,7 @@ public class MainWindow{
         //MOUSE POSITION
         int MOUSE_X = Mouse.getX()-WindowsWidth/2;
         int MOUSE_Y = Mouse.getY()-WindowsHeight/2;
-        updatePositon(MOUSE_X,MOUSE_Y);
+        updatePosition(MOUSE_X,MOUSE_Y);
 
         //Keyboard Listener
         if (Keyboard.isKeyDown(Keyboard.KEY_W)){
@@ -125,11 +129,13 @@ public class MainWindow{
         if (Keyboard.isKeyDown(Keyboard.KEY_D)){
             man_x -= offset_z;
             man_z += offset_x;
-
             WASD = true;
         }
+        if (Keyboard.isKeyDown(Keyboard.KEY_SPACE))
+            JUMP = true;
 
         updateFPS();
+        updateHeight();
 
         if (man_x>WorldSize)
             man_x=WorldSize;
@@ -156,21 +162,38 @@ public class MainWindow{
         fps++;
     }
 
-    private void updatePositon(float x,float y){
+    private void updatePosition(float x, float y){
 
         double alpha = 2*Math.PI*x/WindowsWidth;
         double beta = Math.PI*y/WindowsHeight;
 
-        man_angle = alpha+Math.PI/2;
+        man_angle = (alpha+Math.PI/2);
         offset_x = (float) (Math.cos(man_angle)*0.15);
         offset_z = (float) (Math.sin(man_angle)*0.15);
 
-        System.out.println(man_angle+" "+offset_x+" "+offset_z);
+//        System.out.println(man_angle+" "+offset_x+" "+offset_z);
 
         eye_y = (float) (-eye_r*Math.sin(beta)+eye_r);
         eye_x = (float) (eye_r*Math.cos(beta)*Math.sin(alpha));
         eye_z = (float) (-eye_r*Math.cos(alpha));
 
+    }
+
+    private void updateHeight(){
+
+        if(JUMP==false)
+            return;
+
+        if(jump_flag>Math.PI){
+            JUMP=false;
+            jump_height=0;
+            jump_flag=0;
+            return;
+        }
+
+        jump_height= (float) Math.sin(jump_flag)*5;
+        jump_flag+=0.05;
+        return;
     }
 
     private void initGL() {
@@ -292,24 +315,38 @@ public class MainWindow{
         earth.bind();
         GL11.glEnable(GL11.GL_TEXTURE_2D);
         GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_NEAREST);
-        ground.DrawGround(WorldSize);
+        ground.DrawGround(1000);
         GL11.glPopMatrix();
 
+        System.out.println(jump_height);
         if(!WASD) {
             GL11.glPushMatrix();
-            GL11.glTranslatef(man_x, man_y, man_z);
+            GL11.glTranslatef(man_x, man_y+1.1f+jump_height, man_z);
             GL11.glRotatef(90-(float) (man_angle*180/Math.PI), 0, 1, 0);
             StandMan human = new StandMan(head, clo);
             human.DrawHuman();
             GL11.glPopMatrix();
         } else {
             GL11.glPushMatrix();
-            GL11.glTranslatef(man_x, man_y, man_z);
+            GL11.glTranslatef(man_x, man_y+1.1f+jump_height, man_z);
             GL11.glRotatef(90-(float) (man_angle*180/Math.PI), 0, 1, 0);
             Human human = new Human(head, clo);
             human.DrawHuman(delta*10);
             GL11.glPopMatrix();
         }
+
+        //Sky
+        GL11.glPushMatrix();
+        Sky skyo = new Sky();
+        sky.bind();
+        Color.white.bind();
+        GL11.glEnable(GL11.GL_TEXTURE_2D);
+        GL11.glTexParameteri( GL11.GL_TEXTURE_2D,  GL11.GL_TEXTURE_MAG_FILTER,  GL11.GL_NEAREST);
+        skyo.DrawSky(WorldSize*2);
+        GL11.glPopMatrix();
+        GL11.glRotatef(180,0,1,0);
+        skyo.DrawSky(WorldSize*2);
+        GL11.glDisable(GL11.GL_TEXTURE_2D);
 
     }
 
