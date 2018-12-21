@@ -27,6 +27,8 @@ public class MainWindow{
     //texture windows
     private static final int WindowsWidth = 1200;
     private static final int WindowsHeight = 800;
+    //World Size
+    private static final int WorldSize = 100;
     //fps
     private int fps;
     private long lastFPS;
@@ -103,37 +105,46 @@ public class MainWindow{
 
         //Keyboard Listener
         if (Keyboard.isKeyDown(Keyboard.KEY_W)){
-            offset_z += 0.2;
-            man_z += 0.2;
+            man_x += offset_x;
+            man_z += offset_z;
             WASD = true;
         }
 
         if (Keyboard.isKeyDown(Keyboard.KEY_A)){
-            offset_x += 0.2;
-            man_x += 0.2;
+            man_x += offset_z;
+            man_z -= offset_x;
             WASD = true;
         }
 
         if (Keyboard.isKeyDown(Keyboard.KEY_S)){
-            offset_z -=0.2;
-            man_z -= 0.2;
+            man_x -= offset_x;
+            man_z -= offset_z;
             WASD = true;
         }
 
         if (Keyboard.isKeyDown(Keyboard.KEY_D)){
-            offset_x -=0.2;
-            man_x -= 0.2;
+            man_x -= offset_z;
+            man_z += offset_x;
+
             WASD = true;
         }
 
         updateFPS();
 
+        if (man_x>WorldSize)
+            man_x=WorldSize;
+        if (man_x<-WorldSize)
+            man_x=-WorldSize;
+        if (man_z>WorldSize)
+            man_z=WorldSize;
+        if (man_z<-WorldSize)
+            man_z=-WorldSize;
 
         //LOOK_AT
         changeOrth();
         GL11.glLoadIdentity();
         GLU.gluPerspective(60f, 1.3f, 0.1f, 10000);
-        GLU.gluLookAt(eye_x+offset_x, eye_y+offset_y, eye_z+offset_z, man_x, man_y+2, man_z, 0, 1, 0);
+        GLU.gluLookAt(eye_x+man_x, eye_y, eye_z+man_z, man_x, man_y+2, man_z, 0, 1, 0);
     }
 
     private void updateFPS() {
@@ -150,10 +161,11 @@ public class MainWindow{
         double alpha = 2*Math.PI*x/WindowsWidth;
         double beta = Math.PI*y/WindowsHeight;
 
-        man_angle = -alpha*180/Math.PI;
-//        offset_x = (float) (Math.cos(man_angle)*0.2);
-//        offset_z = (float) (Math.sin(man_angle)*0.2);
+        man_angle = alpha+Math.PI/2;
+        offset_x = (float) (Math.cos(man_angle)*0.15);
+        offset_z = (float) (Math.sin(man_angle)*0.15);
 
+        System.out.println(man_angle+" "+offset_x+" "+offset_z);
 
         eye_y = (float) (-eye_r*Math.sin(beta)+eye_r);
         eye_x = (float) (eye_r*Math.cos(beta)*Math.sin(alpha));
@@ -264,8 +276,6 @@ public class MainWindow{
     private void renderGL() throws IOException{
         /** This method should put the object **/
 
-
-
         GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
         GL11.glClearColor(1, 1, 1, 0);
 
@@ -282,22 +292,22 @@ public class MainWindow{
         earth.bind();
         GL11.glEnable(GL11.GL_TEXTURE_2D);
         GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_NEAREST);
-        ground.DrawGround(100);
+        ground.DrawGround(WorldSize);
         GL11.glPopMatrix();
 
         if(!WASD) {
             GL11.glPushMatrix();
             GL11.glTranslatef(man_x, man_y, man_z);
-            GL11.glRotatef((float) man_angle, 0, 1, 0);
+            GL11.glRotatef(90-(float) (man_angle*180/Math.PI), 0, 1, 0);
             StandMan human = new StandMan(head, clo);
             human.DrawHuman();
             GL11.glPopMatrix();
         } else {
             GL11.glPushMatrix();
             GL11.glTranslatef(man_x, man_y, man_z);
-            GL11.glRotatef((float) man_angle, 0, 1, 0);
+            GL11.glRotatef(90-(float) (man_angle*180/Math.PI), 0, 1, 0);
             Human human = new Human(head, clo);
-            human.DrawHuman(delta*30);
+            human.DrawHuman(delta*10);
             GL11.glPopMatrix();
         }
 
