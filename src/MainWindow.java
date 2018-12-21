@@ -53,12 +53,11 @@ public class MainWindow{
     //Man Face angle
     private double man_angle = 0;
     //Eye Ball Radio
-    private static final float eye_r = 10;
+    private float eye_r = 10;
     //Flag Var
     private boolean WASD = false;
     private boolean JUMP = false;
     //Jump height
-    private float jump_height = 0;
     private float jump_flag = 0;
 
     //colours
@@ -101,6 +100,18 @@ public class MainWindow{
     private void update(int delta){
         //init_FALG
         WASD = false;
+        int wheel = Mouse.getDWheel();
+
+        //Wheel Listener
+        if (wheel>0)
+            eye_r++;
+
+        if (wheel<0&&eye_r>3)
+            eye_r--;
+
+        if (Mouse.isButtonDown(2)) {
+            eye_r=10;
+        }
 
         //MOUSE POSITION
         int MOUSE_X = Mouse.getX()-WindowsWidth/2;
@@ -186,12 +197,12 @@ public class MainWindow{
 
         if(jump_flag>Math.PI){
             JUMP=false;
-            jump_height=0;
+            man_y=0;
             jump_flag=0;
             return;
         }
 
-        jump_height= (float) Math.sin(jump_flag)*5;
+        man_y= (float) Math.sin(jump_flag)*5;
         jump_flag+=0.05;
         return;
     }
@@ -318,17 +329,16 @@ public class MainWindow{
         ground.DrawGround(1000);
         GL11.glPopMatrix();
 
-        System.out.println(jump_height);
         if(!WASD) {
             GL11.glPushMatrix();
-            GL11.glTranslatef(man_x, man_y+1.1f+jump_height, man_z);
+            GL11.glTranslatef(man_x, man_y+1.1f, man_z);
             GL11.glRotatef(90-(float) (man_angle*180/Math.PI), 0, 1, 0);
             StandMan human = new StandMan(head, clo);
             human.DrawHuman();
             GL11.glPopMatrix();
         } else {
             GL11.glPushMatrix();
-            GL11.glTranslatef(man_x, man_y+1.1f+jump_height, man_z);
+            GL11.glTranslatef(man_x, man_y+1.1f, man_z);
             GL11.glRotatef(90-(float) (man_angle*180/Math.PI), 0, 1, 0);
             Human human = new Human(head, clo);
             human.DrawHuman(delta*10);
@@ -343,9 +353,9 @@ public class MainWindow{
         GL11.glEnable(GL11.GL_TEXTURE_2D);
         GL11.glTexParameteri( GL11.GL_TEXTURE_2D,  GL11.GL_TEXTURE_MAG_FILTER,  GL11.GL_NEAREST);
         skyo.DrawSky(WorldSize*2);
-        GL11.glPopMatrix();
         GL11.glRotatef(180,0,1,0);
         skyo.DrawSky(WorldSize*2);
+        GL11.glPopMatrix();
         GL11.glDisable(GL11.GL_TEXTURE_2D);
 
     }
