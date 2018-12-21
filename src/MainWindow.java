@@ -1,4 +1,5 @@
 import GraphicsObjects.Utils;
+import objects3D.Ground;
 import objects3D.Human;
 import objects3D.Sky;
 import objects3D.StandMan;
@@ -6,10 +7,12 @@ import org.lwjgl.BufferUtils;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.Sys;
 import org.lwjgl.input.Keyboard;
+import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.glu.GLU;
+import org.newdawn.slick.Color;
 import org.newdawn.slick.opengl.Texture;
 import org.newdawn.slick.opengl.TextureLoader;
 import org.newdawn.slick.util.ResourceLoader;
@@ -20,7 +23,7 @@ import java.nio.FloatBuffer;
 public class MainWindow{
 
     //texture var
-    private Texture texture,box,head,clo,sun,moon,road,sky,bb;
+    private Texture earth,box,head,clo,sun,moon,road,sky,bb;
     //texture windows
     private static final int WindowsWidth = 1200;
     private static final int WindowsHeight = 800;
@@ -37,6 +40,18 @@ public class MainWindow{
     private float offset_x = 0;
     private float offset_z = 0;
     private float offset_y = 0;
+    //Eye Position
+    private float eye_x;
+    private float eye_y;
+    private float eye_z;
+    //Human Position
+    private float man_x=0;
+    private float man_y=0;
+    private float man_z=0;
+    //Man Face angle
+    private double man_angle = 0;
+    //Eye Ball Radio
+    private static final float eye_r = 10;
     //Flag Var
     private boolean WASD = false;
 
@@ -78,22 +93,47 @@ public class MainWindow{
     }
 
     private void update(int delta){
+        //init_FALG
         WASD = false;
 
+        //MOUSE POSITION
+        int MOUSE_X = Mouse.getX()-WindowsWidth/2;
+        int MOUSE_Y = Mouse.getY()-WindowsHeight/2;
+        updatePositon(MOUSE_X,MOUSE_Y);
+
+        //Keyboard Listener
+        if (Keyboard.isKeyDown(Keyboard.KEY_W)){
+            offset_z += 0.2;
+            man_z += 0.2;
+            WASD = true;
+        }
+
         if (Keyboard.isKeyDown(Keyboard.KEY_A)){
-            offset_x +=0.2;
+            offset_x += 0.2;
+            man_x += 0.2;
+            WASD = true;
+        }
+
+        if (Keyboard.isKeyDown(Keyboard.KEY_S)){
+            offset_z -=0.2;
+            man_z -= 0.2;
             WASD = true;
         }
 
         if (Keyboard.isKeyDown(Keyboard.KEY_D)){
             offset_x -=0.2;
+            man_x -= 0.2;
             WASD = true;
         }
 
-
-
-
         updateFPS();
+
+
+        //LOOK_AT
+        changeOrth();
+        GL11.glLoadIdentity();
+        GLU.gluPerspective(60f, 1.3f, 0.1f, 10000);
+        GLU.gluLookAt(eye_x+offset_x, eye_y+offset_y, eye_z+offset_z, man_x, man_y+2, man_z, 0, 1, 0);
     }
 
     private void updateFPS() {
@@ -103,6 +143,22 @@ public class MainWindow{
             lastFPS += 1000;
         }
         fps++;
+    }
+
+    private void updatePositon(float x,float y){
+
+        double alpha = 2*Math.PI*x/WindowsWidth;
+        double beta = Math.PI*y/WindowsHeight;
+
+        man_angle = -alpha*180/Math.PI;
+//        offset_x = (float) (Math.cos(man_angle)*0.2);
+//        offset_z = (float) (Math.sin(man_angle)*0.2);
+
+
+        eye_y = (float) (-eye_r*Math.sin(beta)+eye_r);
+        eye_x = (float) (eye_r*Math.cos(beta)*Math.sin(alpha));
+        eye_z = (float) (-eye_r*Math.cos(alpha));
+
     }
 
     private void initGL() {
@@ -193,7 +249,7 @@ public class MainWindow{
     private void init() throws IOException {
 
         //Get texture from files
-        texture = TextureLoader.getTexture("PNG", ResourceLoader.getResourceAsStream("res/earthspace.png"));
+        earth = TextureLoader.getTexture("PNG", ResourceLoader.getResourceAsStream("res/earthspace.png"));
 //	    box = TextureLoader.getTexture("JPG",ResourceLoader.getResourceAsStream("res/box.jpg"));
         sun = TextureLoader.getTexture("PNG",ResourceLoader.getResourceAsStream("res/sol.png"));
         moon = TextureLoader.getTexture("PNG",ResourceLoader.getResourceAsStream("res/lua.png"));
@@ -207,11 +263,9 @@ public class MainWindow{
 
     private void renderGL() throws IOException{
         /** This method should put the object **/
-        changeOrth();
 
-        GL11.glLoadIdentity();
-        GLU.gluPerspective(60f, 1.3f, 0.1f, 10000);
-        GLU.gluLookAt(0, 3.5f, -10, 0, 3, 0, 0, 1, 0);
+
+
         GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
         GL11.glClearColor(1, 1, 1, 0);
 
@@ -222,17 +276,26 @@ public class MainWindow{
         float posn_x = (float) Math.cos(theta);
         float posn_y = (float) Math.sin(theta);
 
+        GL11.glPushMatrix();
+        Ground ground = new Ground();
+        Color.white.bind();
+        earth.bind();
+        GL11.glEnable(GL11.GL_TEXTURE_2D);
+        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_NEAREST);
+        ground.DrawGround(100);
+        GL11.glPopMatrix();
+
         if(!WASD) {
             GL11.glPushMatrix();
-            GL11.glTranslatef(offset_x, -0.0f, 0.0f);
-            GL11.glRotatef(0, 0, 1f, 0);
+            GL11.glTranslatef(man_x, man_y, man_z);
+            GL11.glRotatef((float) man_angle, 0, 1, 0);
             StandMan human = new StandMan(head, clo);
             human.DrawHuman();
             GL11.glPopMatrix();
         } else {
             GL11.glPushMatrix();
-            GL11.glTranslatef(offset_x, -0.0f, 0.0f);
-            GL11.glRotatef(0, 0, 1f, 0);
+            GL11.glTranslatef(man_x, man_y, man_z);
+            GL11.glRotatef((float) man_angle, 0, 1, 0);
             Human human = new Human(head, clo);
             human.DrawHuman(delta*30);
             GL11.glPopMatrix();
