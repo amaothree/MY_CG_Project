@@ -32,6 +32,7 @@ public class MainWindow{
     //fps
     private int fps;
     private long lastFPS;
+    private long timer;
     //time
     private long StartTime;
     //frame
@@ -52,11 +53,13 @@ public class MainWindow{
     private float man_z=0;
     //Man Face angle
     private double man_angle = 0;
+    private double man_angle_offset = 0;
     //Eye Ball Radio
     private float eye_r = 10;
     //Flag Var
     private boolean WASD = false;
     private boolean JUMP = false;
+    private boolean FPS = false;
     //Jump height
     private float jump_flag = 0;
 
@@ -73,6 +76,7 @@ public class MainWindow{
     private void start() throws IOException{
 
         StartTime = getTime();
+        timer = getTime();
         try {
             Display.setDisplayMode(new DisplayMode(WindowsWidth,WindowsHeight));
             Display.create();
@@ -119,6 +123,7 @@ public class MainWindow{
         updatePosition(MOUSE_X,MOUSE_Y);
 
         //Keyboard Listener
+        //Move
         if (Keyboard.isKeyDown(Keyboard.KEY_W)){
             man_x += offset_x;
             man_z += offset_z;
@@ -142,8 +147,27 @@ public class MainWindow{
             man_z += offset_x;
             WASD = true;
         }
+        //Jump
         if (Keyboard.isKeyDown(Keyboard.KEY_SPACE))
             JUMP = true;
+        //Rotate
+        if (Keyboard.isKeyDown(Keyboard.KEY_Q))
+            man_angle_offset -= 0.05;
+        if (Keyboard.isKeyDown(Keyboard.KEY_E))
+            man_angle_offset += 0.05;
+        //FPS
+        if (Keyboard.isKeyDown(Keyboard.KEY_R)) {
+            if(getTime() - timer > 500) {
+                if (FPS)
+                    eye_r = 10;
+                else
+                    eye_r = 0.1f;
+
+                FPS = !FPS;
+                timer = getTime();
+            }
+        }
+
 
         updateFPS();
         updateHeight();
@@ -160,8 +184,14 @@ public class MainWindow{
         //LOOK_AT
         changeOrth();
         GL11.glLoadIdentity();
-        GLU.gluPerspective(60f, 1.3f, 0.1f, 10000);
-        GLU.gluLookAt(eye_x+man_x, eye_y, eye_z+man_z, man_x, man_y+2, man_z, 0, 1, 0);
+
+        if(!FPS) {
+            GLU.gluPerspective(60f, 1.3f, 0.1f, 10000);
+            GLU.gluLookAt(eye_x + man_x, eye_y, eye_z + man_z, man_x, man_y + 2, man_z, 0, 1, 0);
+        } else {
+            GLU.gluPerspective(75f, 1.3f, 0.8f, 10000);
+            GLU.gluLookAt(eye_x + man_x, man_y + 3, eye_z + man_z, man_x, man_y + 3, man_z, 0, 1, 0);
+        }
     }
 
     private void updateFPS() {
@@ -175,7 +205,7 @@ public class MainWindow{
 
     private void updatePosition(float x, float y){
 
-        double alpha = 2*Math.PI*x/WindowsWidth;
+        double alpha = 2*Math.PI*x/WindowsWidth + man_angle_offset;
         double beta = Math.PI*y/WindowsHeight;
 
         man_angle = (alpha+Math.PI/2);
