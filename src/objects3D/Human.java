@@ -1,14 +1,9 @@
 package objects3D;
 
 import org.lwjgl.opengl.GL11;
-import GraphicsObjects.Point4f;
 import GraphicsObjects.Utils;
-import GraphicsObjects.Vector4f;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.opengl.Texture;
-import org.newdawn.slick.opengl.TextureLoader;
-import org.newdawn.slick.util.ResourceLoader;
-
 import java.io.IOException;
 
 public class Human {

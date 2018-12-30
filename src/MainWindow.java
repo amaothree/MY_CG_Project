@@ -20,7 +20,7 @@ import java.nio.FloatBuffer;
 public class MainWindow{
 
     //texture var
-    private Texture earth,box,head,clo,sun,moon,road,sky,bb;
+    private Texture earth,head,clo,sky;
     //texture windows
     private static final int WindowsWidth = 1200;
     private static final int WindowsHeight = 800;
@@ -29,7 +29,7 @@ public class MainWindow{
     //fps
     private int fps;
     private long lastFPS;
-    private long timer,timer_att;
+    private long timer;
     //time
     private long StartTime;
     //frame
@@ -222,7 +222,7 @@ public class MainWindow{
 
     private void updateHeight(){
 
-        if(JUMP==false)
+        if(!JUMP)
             return;
 
         if(jump_flag>Math.PI){
@@ -234,7 +234,6 @@ public class MainWindow{
 
         man_y= (float) Math.sin(jump_flag)*5;
         jump_flag+=0.05;
-        return;
     }
 
     private void initGL() {
@@ -327,13 +326,13 @@ public class MainWindow{
         //Get texture from files
         earth = TextureLoader.getTexture("PNG", ResourceLoader.getResourceAsStream("res/earthspace.png"));
 //	    box = TextureLoader.getTexture("JPG",ResourceLoader.getResourceAsStream("res/box.jpg"));
-        sun = TextureLoader.getTexture("PNG",ResourceLoader.getResourceAsStream("res/sol.png"));
-        moon = TextureLoader.getTexture("PNG",ResourceLoader.getResourceAsStream("res/lua.png"));
+//        sun = TextureLoader.getTexture("PNG",ResourceLoader.getResourceAsStream("res/sol.png"));
+//        moon = TextureLoader.getTexture("PNG",ResourceLoader.getResourceAsStream("res/lua.png"));
         head = TextureLoader.getTexture("JPG", ResourceLoader.getResourceAsStream("res/texture-pige.jpg"));
         clo = TextureLoader.getTexture("JPG", ResourceLoader.getResourceAsStream("res/clo.jpg"));
-        road = TextureLoader.getTexture("PNG",ResourceLoader.getResourceAsStream("res/road.png"));
+//        road = TextureLoader.getTexture("PNG",ResourceLoader.getResourceAsStream("res/road.png"));
         sky = TextureLoader.getTexture("PNG",ResourceLoader.getResourceAsStream("res/sky.png"));
-        bb = TextureLoader.getTexture("PNG",ResourceLoader.getResourceAsStream("res/2018a.png"));
+//        bb = TextureLoader.getTexture("PNG",ResourceLoader.getResourceAsStream("res/2018a.png"));
         System.out.println("Texture loaded okay ");
     }
 
@@ -346,9 +345,6 @@ public class MainWindow{
         myDelta = getTime() - StartTime;
         float delta = ((float) myDelta) / 10000;
         float theta = (float) (delta *2 * Math.PI);
-        float thetaDeg = delta * 360;
-        float posn_x = (float) Math.cos(theta);
-        float posn_y = (float) Math.sin(theta);
 
         GL11.glPushMatrix();
         Ground ground = new Ground();
@@ -357,6 +353,7 @@ public class MainWindow{
         GL11.glEnable(GL11.GL_TEXTURE_2D);
         GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_NEAREST);
         ground.DrawGround(1000);
+        GL11.glDisable(GL11.GL_TEXTURE_2D);
         GL11.glPopMatrix();
 
         if(!WASD) {
@@ -394,10 +391,17 @@ public class MainWindow{
             GL11.glMaterial(GL11.GL_FRONT, GL11.GL_AMBIENT_AND_DIFFUSE, Utils.ConvertForGL(brown));
             GL11.glPushMatrix();
             GL11.glTranslatef(man_x, man_y, man_z);
+            GL11.glRotatef(90-(float) (man_angle*180/Math.PI), 0, 1, 0);
             Wood wood = new Wood();
             wood.DrawWood(delta);
             GL11.glPopMatrix();
         }
+
+        //Zombie
+        GL11.glPushMatrix();
+        Zombi zombi = new Zombi();
+        zombi.DrawZombi(delta);
+        GL11.glPopMatrix();
     }
 
 }
