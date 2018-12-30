@@ -1,8 +1,5 @@
 import GraphicsObjects.Utils;
-import objects3D.Ground;
-import objects3D.Human;
-import objects3D.Sky;
-import objects3D.StandMan;
+import objects3D.*;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.Sys;
@@ -32,7 +29,7 @@ public class MainWindow{
     //fps
     private int fps;
     private long lastFPS;
-    private long timer;
+    private long timer,timer_att;
     //time
     private long StartTime;
     //frame
@@ -56,16 +53,18 @@ public class MainWindow{
     private double man_angle_offset = 0;
     //Eye Ball Radio
     private float eye_r = 10;
-    //Flag Var
+    //action Flag Var
     private boolean WASD = false;
     private boolean JUMP = false;
     private boolean FPS = false;
+    private boolean ATTCK = false;
     //Jump height
     private float jump_flag = 0;
 
     //colours
     private static float grey[] = { 0.5f, 0.5f, 0.5f, 1.0f };
     private static float spot[] = { 0.1f, 0.1f, 0.1f, 0.5f };
+    static float brown[] = {0.5f, 0.25f, 0.0f, 1.0f, 1.0f};
 
     //Main function
     public static void main(String[]args) throws IOException {
@@ -105,6 +104,7 @@ public class MainWindow{
         //init_FALG
         WASD = false;
         int wheel = Mouse.getDWheel();
+        ATTCK = Mouse.isButtonDown(0);
 
         //Wheel Listener
         if (wheel>0)
@@ -388,6 +388,16 @@ public class MainWindow{
         GL11.glPopMatrix();
         GL11.glDisable(GL11.GL_TEXTURE_2D);
 
+        //Throw Wood in Hand
+        if(ATTCK) {
+            GL11.glColor3f(brown[0], brown[1], brown[2]);
+            GL11.glMaterial(GL11.GL_FRONT, GL11.GL_AMBIENT_AND_DIFFUSE, Utils.ConvertForGL(brown));
+            GL11.glPushMatrix();
+            GL11.glTranslatef(man_x, man_y, man_z);
+            Wood wood = new Wood();
+            wood.DrawWood(delta);
+            GL11.glPopMatrix();
+        }
     }
 
 }
