@@ -54,7 +54,8 @@ public class MainWindow{
     private float zom_z=50;
     //Man Face angle
     private double man_angle = 0;
-    private double man_angle_offset = 0;
+    private float man_angle_offset_x = 0;
+    private float man_angle_offset_y = 0;
     private double zom_angle = 0;
     //Eye Ball Radio
     private float eye_r = 10;
@@ -65,6 +66,9 @@ public class MainWindow{
     private boolean ATTCK = false;
     //Jump height
     private float jump_flag = 0;
+    //Mouse Position
+    private int lastX;
+    private int lastY;
 
     //colours
     private static float grey[] = { 0.5f, 0.5f, 0.5f, 1.0f };
@@ -134,24 +138,35 @@ public class MainWindow{
 
         //init_FALG
         WASD = false;
-        int wheel = Mouse.getDWheel();
         ATTCK = Mouse.isButtonDown(0);
+        if(!FPS) {
+            int wheel = Mouse.getDWheel();
 
-        //Wheel Listener
-        if (wheel>0)
-            eye_r++;
+            //Wheel Listener
+            if (wheel > 0)
+                eye_r++;
 
-        if (wheel<0&&eye_r>3)
-            eye_r--;
+            if (wheel < 0 && eye_r > 3)
+                eye_r--;
 
-        if (Mouse.isButtonDown(2)) {
-            eye_r=10;
+            if (Mouse.isButtonDown(2)) {
+                eye_r = 10;
+            }
         }
-
-        //MOUSE POSITION
+        //Set MOUSE POSITION
         int MOUSE_X = Mouse.getX()-WindowsWidth/2;
         int MOUSE_Y = Mouse.getY()-WindowsHeight/2;
-        updatePosition(MOUSE_X,MOUSE_Y);
+        lastX += MOUSE_X;
+        lastY += MOUSE_Y;
+
+        //For limit Y view
+        if(lastY<-70)
+            lastY=-70;
+        if(lastY>140)
+            lastY=140;
+
+        //update
+
 
         //Keyboard Listener
         //Move
@@ -183,9 +198,9 @@ public class MainWindow{
             JUMP = true;
         //Rotate
         if (Keyboard.isKeyDown(Keyboard.KEY_Q))
-            man_angle_offset -= 0.05;
+            man_angle_offset_x -= 0.05;
         if (Keyboard.isKeyDown(Keyboard.KEY_E))
-            man_angle_offset += 0.05;
+            man_angle_offset_x += 0.05;
         //FPS
         if (Keyboard.isKeyDown(Keyboard.KEY_R)) {
             if(getTime() - timer > 500) {
@@ -199,7 +214,8 @@ public class MainWindow{
             }
         }
 
-
+        //sub-update functions
+        updatePosition(lastX,lastY);
         updateFPS();
         updateHeight();
         updateZombie(0.1f);
@@ -224,6 +240,7 @@ public class MainWindow{
             GLU.gluPerspective(75f, 1.3f, 0.8f, 10000);
             GLU.gluLookAt(eye_x + man_x, man_y + 3, eye_z + man_z, man_x, man_y + 3, man_z, 0, 1, 0);
         }
+        Mouse.setCursorPosition(WindowsWidth/2,WindowsHeight/2);
     }
 
     private void updateFPS() {
@@ -237,7 +254,7 @@ public class MainWindow{
 
     private void updatePosition(float x, float y){
 
-        double alpha = 2*Math.PI*x/WindowsWidth + man_angle_offset;
+        double alpha = 2*Math.PI*x/WindowsWidth + man_angle_offset_x;
         double beta = Math.PI*y/WindowsHeight;
 
         man_angle = (alpha+Math.PI/2);
