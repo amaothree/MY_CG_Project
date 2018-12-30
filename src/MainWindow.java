@@ -176,7 +176,7 @@ public class MainWindow{
 
         updateFPS();
         updateHeight();
-        updateZombie();
+        updateZombie(0.1f);
 
         if (man_x>WorldSize)
             man_x=WorldSize;
@@ -242,14 +242,16 @@ public class MainWindow{
         jump_flag+=0.05;
     }
 
-    private void updateZombie(){
+    private void updateZombie(float step){
 
         float x,y;
         x = man_x-zom_x;
         y = man_z-zom_z;
         zom_angle = Math.atan2(y,x);
-
-
+        //Move to human
+        zom_x += Math.cos(zom_angle) * step;
+        zom_z += Math.sin(zom_angle) * step;
+        //Face to human
         zom_angle = zom_angle*180/Math.PI-90;
 
     }
