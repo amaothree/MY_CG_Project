@@ -105,7 +105,33 @@ public class MainWindow{
 
     }
 
+    float calculate(){
+        return (float) Math.sqrt(Math.pow((man_x-zom_x),2)+Math.pow((man_z-zom_z),2));
+    }
+
+    void touchCheck(){
+
+        //If Zombie touch the man.
+        if(calculate() < 1f){
+            man_x += Math.cos(zom_angle)*10;
+            man_z += Math.sin(zom_angle)*10;
+        }else
+
+        //If Wood beat the Zombie
+        if( (Math.abs(man_angle-zom_angle)>(Math.PI*17/18)) && (Math.abs(man_angle-zom_angle)<(Math.PI*19/18)) && (calculate()<10) && ATTCK ){
+
+            zom_x += Math.cos(man_angle)*10;
+            zom_z += Math.sin(man_angle)*10;
+
+        }
+
+
+    }
+
     private void update(int delta){
+
+        touchCheck();
+
         //init_FALG
         WASD = false;
         int wheel = Mouse.getDWheel();
@@ -247,12 +273,12 @@ public class MainWindow{
         float x,y;
         x = man_x-zom_x;
         y = man_z-zom_z;
+        //FaceToHuman
         zom_angle = Math.atan2(y,x);
         //Move to human
         zom_x += Math.cos(zom_angle) * step;
         zom_z += Math.sin(zom_angle) * step;
-        //Face to human
-        zom_angle = zom_angle*180/Math.PI-90;
+//        zom_angle = zom_angle*180/Math.PI-90;
 
     }
 
@@ -420,7 +446,7 @@ public class MainWindow{
         //Zombie
         GL11.glPushMatrix();
         GL11.glTranslatef(zom_x,zom_y,zom_z);
-        GL11.glRotatef((float) zom_angle,0,-1,0);
+        GL11.glRotatef((float) (zom_angle*180/Math.PI-90),0,-1,0);
         Zombi zombi = new Zombi();
         zombi.DrawZombi(delta);
         GL11.glPopMatrix();
