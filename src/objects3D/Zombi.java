@@ -9,7 +9,7 @@ public class Zombi {
     public void DrawZombi(float delta) throws IOException{
         float theta = (float) (delta * 2 * Math.PI);
         float LimbRotation;
-        LimbRotation = (float) Math.cos(theta) * 50;
+        LimbRotation = (float) Math.cos(theta*5) * 50;
 
         Rectangle rectangle = new Rectangle();
         Cylinder cylinder = new Cylinder();

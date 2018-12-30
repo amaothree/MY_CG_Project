@@ -48,9 +48,14 @@ public class MainWindow{
     private float man_x=0;
     private float man_y=0;
     private float man_z=0;
+    //Zombie Position
+    private float zom_x=0;
+    private float zom_y=0;
+    private float zom_z=50;
     //Man Face angle
     private double man_angle = 0;
     private double man_angle_offset = 0;
+    private double zom_angle = 0;
     //Eye Ball Radio
     private float eye_r = 10;
     //action Flag Var
@@ -171,6 +176,7 @@ public class MainWindow{
 
         updateFPS();
         updateHeight();
+        updateZombie();
 
         if (man_x>WorldSize)
             man_x=WorldSize;
@@ -234,6 +240,18 @@ public class MainWindow{
 
         man_y= (float) Math.sin(jump_flag)*5;
         jump_flag+=0.05;
+    }
+
+    private void updateZombie(){
+
+        float x,y;
+        x = man_x-zom_x;
+        y = man_z-zom_z;
+        zom_angle = Math.atan2(y,x);
+
+
+        zom_angle = zom_angle*180/Math.PI-90;
+
     }
 
     private void initGL() {
@@ -399,6 +417,8 @@ public class MainWindow{
 
         //Zombie
         GL11.glPushMatrix();
+        GL11.glTranslatef(zom_x,zom_y,zom_z);
+        GL11.glRotatef((float) zom_angle,0,-1,0);
         Zombi zombi = new Zombi();
         zombi.DrawZombi(delta);
         GL11.glPopMatrix();
