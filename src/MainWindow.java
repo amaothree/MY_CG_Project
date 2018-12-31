@@ -122,7 +122,7 @@ public class MainWindow{
         }else
 
         //If Wood beat the Zombie
-        if( (Math.abs(man_angle-zom_angle)>(Math.PI*17/18)) && (Math.abs(man_angle-zom_angle)<(Math.PI*19/18)) && (calculate()<10) && ATTCK ){
+        if( (Math.abs(man_angle-zom_angle)>(Math.PI*17/18)) && (Math.abs(man_angle%Math.PI-zom_angle)<(Math.PI*19/18)) && (calculate()<10) && ATTCK ){
 
             zom_x += Math.cos(man_angle)*10;
             zom_z += Math.sin(man_angle)*10;
