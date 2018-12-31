@@ -159,6 +159,8 @@ public class MainWindow{
         lastX += MOUSE_X;
         lastY += MOUSE_Y;
 
+        System.out.println(MOUSE_X+" "+MOUSE_Y+" "+lastX+" "+lastY);
+
         //For limit Y view
         if(lastY<-70)
             lastY=-70;
@@ -240,7 +242,8 @@ public class MainWindow{
             GLU.gluPerspective(75f, 1.3f, 0.8f, 10000);
             GLU.gluLookAt(eye_x + man_x, man_y + 3, eye_z + man_z, man_x, man_y + 3, man_z, 0, 1, 0);
         }
-        Mouse.setCursorPosition(WindowsWidth/2,WindowsHeight/2);
+        if(!(MOUSE_X==0 && MOUSE_Y==0))
+            Mouse.setCursorPosition(WindowsWidth/2,WindowsHeight/2);
     }
 
     private void updateFPS() {
